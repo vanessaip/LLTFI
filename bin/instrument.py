@@ -44,6 +44,8 @@ prog = os.path.basename(sys.argv[0])
 # basedir is assigned in parseArgs(args)
 basedir = ""
 
+fakeQuant = None
+
 # llfibd = os.path.join(basedir, "llfi")
 # if os.path.exists(llfibd):
 #   shutil.rmtree(llfibd)
@@ -317,6 +319,14 @@ def readCompileOption():
           if (str(cOpt["tracingPropagationOption"]["generateCDFG"]).lower() == "true"):
             options["genDotGraph"] = True
 
+  if 'fakeQuant' in cOpt and (cOpt['fakeQuant']['targetLayer'] == 'conv' or cOpt['fakeQuant']['targetLayer'] == 'matmul'):
+    minPercentileOutlierThreshold = cOpt['fakeQuant'].get('minPercentileOutlierThreshold', 0)
+    maxPercentileOutlierThreshold = cOpt['fakeQuant'].get('maxPercentileOutlierThreshold', 100)
+    bitWidth = cOpt['fakeQuant'].get('bitWidth')
+    
+    global fakeQuant
+    fakeQuant = [cOpt['fakeQuant']['targetLayer'], minPercentileOutlierThreshold, maxPercentileOutlierThreshold, bitWidth]
+
 ################################################################################
 def _suffixOfIR():
   if options["readable"]:
@@ -351,6 +361,12 @@ def compileProg():
       execlist.append("-S")
     if options["enableMLFIStats"]:
       execlist.append("-mlfistats")
+    if fakeQuant != None:
+      execlist.append(f'-fakeQuant={fakeQuant[0]}')
+      execlist.append(f'-minPercentileThreshold={fakeQuant[1]}')
+      execlist.append(f'-maxPercentileThreshold={fakeQuant[2]}')
+      execlist.append(f'-bitWidth={fakeQuant[3]}')
+      
     retcode = execCompilation(execlist)
 
   if retcode == 0:
@@ -361,6 +377,10 @@ def compileProg():
     #print(execlist)
     if options["readable"]:
       execlist.append("-S")
+    if fakeQuant != None:
+      print("Executed 2")
+      execlist.append(f'-fakeQuant={fakeQuant[0]}')
+
     retcode = execCompilation(execlist)
 
   if retcode != 0:

@@ -25,7 +25,7 @@ You need to have 'input.yaml' under the same directory as <source IR file>, whic
 # Everytime the contents of compileOption is changed in input.yaml
 # this script should be run to create new fi.exe and prof.exe
 
-import sys, os, shutil
+import sys, os, shutil, math
 import yaml
 import subprocess
 
@@ -319,13 +319,25 @@ def readCompileOption():
           if (str(cOpt["tracingPropagationOption"]["generateCDFG"]).lower() == "true"):
             options["genDotGraph"] = True
 
-  if 'fakeQuant' in cOpt and (cOpt['fakeQuant']['targetLayer'] == 'conv' or cOpt['fakeQuant']['targetLayer'] == 'matmul'):
+  if 'fakeQuant' in cOpt:
+    targetLayer = cOpt['fakeQuant']['targetLayer']
     minPercentileOutlierThreshold = cOpt['fakeQuant'].get('minPercentileOutlierThreshold', 0)
     maxPercentileOutlierThreshold = cOpt['fakeQuant'].get('maxPercentileOutlierThreshold', 100)
-    bitWidth = cOpt['fakeQuant'].get('bitWidth')
+    bitWidth = cOpt['fakeQuant'].get('bitWidth', 8)
+    
+    assert isinstance(targetLayer, str), "TargetLayer must be of type string" 
+    assert targetLayer == "conv" or targetLayer == "matmul" , "TargetLayer can only be 'conv' and 'matmul'" 
+    assert isinstance(minPercentileOutlierThreshold, int), "Minimum Percentile Value should be of type int"
+    assert isinstance(maxPercentileOutlierThreshold, int), "Maximum Percentile Value should be of type int"
+    assert isinstance(bitWidth, int), "BitWidth should be of type int"
+    assert 0 < bitWidth, "BitWidth must be a integer greater than 0"
+    assert math.log2(bitWidth).is_integer(), "BitWidth must be a exponent of power 2"
+    assert 0 <= minPercentileOutlierThreshold and minPercentileOutlierThreshold <= 100, "Minimum Percentile Value for Percentile should be greater than or equal to 0"
+    assert 0 <= maxPercentileOutlierThreshold and maxPercentileOutlierThreshold <= 100, "Maximum Percentile Value for Percentile should be greater than or equal to 0 and lesser than or equal to 100"
+    assert minPercentileOutlierThreshold <= maxPercentileOutlierThreshold, "Minimum Percentile Value should be lesser than Maximum Percentile Value"
     
     global fakeQuant
-    fakeQuant = [cOpt['fakeQuant']['targetLayer'], minPercentileOutlierThreshold, maxPercentileOutlierThreshold, bitWidth]
+    fakeQuant = [targetLayer, minPercentileOutlierThreshold, maxPercentileOutlierThreshold, bitWidth]
 
 ################################################################################
 def _suffixOfIR():

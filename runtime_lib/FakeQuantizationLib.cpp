@@ -325,12 +325,12 @@ float Quantize(float w1, float x1, int currentLayerIndex, int totalNumberOfLayer
     }
 }
 
-void finished(int currentLayerIndex, int totalNumberOfLayers, int minPercentileThreshold, int maxPercetileThreshold, int bitWidth)
+void finished(int currentLayerIndex, int totalNumberOfLayers, int minPercentileThreshold, int maxPercentileThreshold, int bitWidth)
 {
     bit_width = bitWidth;
     max_number = 2 ^ bit_width;
     printf("In this Layer - %i\n", currentLayerIndex);
-    FindPercentile(minPercentileThreshold, maxPercetileThreshold);
+    FindPercentile(minPercentileThreshold, maxPercentileThreshold);
     printf("Got called in finished!\n");
     printf("Index for w %i and Index for x %i\n", w_index, x_index);
     printf("Actual Min for x %f and Actual Max %f\n", x_values[0], x_values[x_index - 1]);
@@ -402,7 +402,7 @@ float FakeQuantIntegerBasedAddition(float num1, float num2)
     return (float)(intNum1 + intNum2);
 }
 
-float FakeQunatDequnatizeAndBiasAddition(float QunatizeNum, float Basis)
+float FakeQuantDequantizeAndBiasAddition(float QunatizeNum, float Basis)
 {
     int QunatizeIntNum = (int)QunatizeNum;
     float dequnatizedFloat = dequantize(QunatizeIntNum);

@@ -333,8 +333,8 @@ def readCompileOption():
     assert 0 < bitWidth, "BitWidth must be a integer greater than 0"
     assert math.log2(bitWidth).is_integer(), "BitWidth must be a exponent of power 2"
     assert 0 <= minPercentileOutlierThreshold and minPercentileOutlierThreshold <= 100, "Minimum Percentile Value for Percentile should be greater than or equal to 0"
-    assert 0 <= maxPercentileOutlierThreshold and maxPercentileOutlierThreshold <= 100, "Maximum Percentile Value for Percentile should be greater than or equal to 0 and lesser than or equal to 100"
-    assert minPercentileOutlierThreshold <= maxPercentileOutlierThreshold, "Minimum Percentile Value should be lesser than Maximum Percentile Value"
+    assert 0 <= maxPercentileOutlierThreshold and maxPercentileOutlierThreshold <= 100, "Maximum Percentile Value for Percentile should be greater than or equal to 0 and less than or equal to 100"
+    assert minPercentileOutlierThreshold <= maxPercentileOutlierThreshold, "Minimum Percentile Value should be less than Maximum Percentile Value"
     
     global fakeQuant
     fakeQuant = [targetLayer, minPercentileOutlierThreshold, maxPercentileOutlierThreshold, bitWidth]

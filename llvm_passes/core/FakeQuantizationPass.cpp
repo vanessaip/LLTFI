@@ -17,7 +17,6 @@
 #include <unordered_set>
 
 #include "llvm/Support/CommandLine.h"
-// #include "Controller.h"
 
 using namespace llvm;
 using namespace std;
@@ -262,8 +261,8 @@ namespace llfi
         "FakeQuantIntegerBasedAddition", Type::getFloatTy(Context), Type::getFloatTy(Context),
         Type::getFloatTy(Context));
 
-    FunctionCallee FakeQunatDequnatizeAndBiasAdditionFunction = M->getOrInsertFunction(
-        "FakeQunatDequnatizeAndBiasAddition", Type::getFloatTy(Context), Type::getFloatTy(Context),
+    FunctionCallee FakeQunatDequantizeAndBiasAdditionFunction = M->getOrInsertFunction(
+        "FakeQunatDequantizeAndBiasAddition", Type::getFloatTy(Context), Type::getFloatTy(Context),
         Type::getFloatTy(Context));
 
     bool foundLayerDef = false;
@@ -329,7 +328,7 @@ namespace llfi
 
 
             // Replacing the old float to new float obtained from Fake
-            // Qunatization
+            // Quantization
             op->replaceAllUsesWith(newInst);
             deleteInst.insert(op);
           }
@@ -343,7 +342,7 @@ namespace llfi
               Value *op1 = op->getOperand(0);
               Value *op2 = op->getOperand(1);
 
-              Value *newInst = Builder.CreateCall(FakeQunatDequnatizeAndBiasAdditionFunction, {op1, op2});
+              Value *newInst = Builder.CreateCall(FakeQuantDequnatizeAndBiasAdditionFunction, {op1, op2});
               op->replaceAllUsesWith(newInst);
               deleteInst.insert(op);
             }

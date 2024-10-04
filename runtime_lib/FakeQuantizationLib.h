@@ -16,7 +16,6 @@ float Quantize(float w1, float x1, int currentLayerIndex, int totalNumberOfLayer
 float QuantizeMatMul(float w1, float x1, int currentLayerIndex, int totalNumberOfLayers);
 float FakeQuantIntegerBasedAddition(float num1, float num2);
 float FakeQuantDequantizeAndBiasAddition(float num1, float num2);
-void getBias(float a, float b);
 #ifdef __cplusplus
 }
 #endif

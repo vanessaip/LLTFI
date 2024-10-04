@@ -177,11 +177,6 @@ float find_percentile_value(float array[], int n, int percentile)
     if (upper_index >= n)
         upper_index = n - 1; // Boundary condition
 
-    // Interpolate if needed
-    // double interpolation = index - lower_index;
-    // double value = array[lower_index] + interpolation * (array[upper_index] - array[lower_index]);
-
-    // return value;
     return array[lower_index];
 }
 
@@ -248,8 +243,8 @@ void FindPercentile(int minPercentileThreshold, int maxPercentileThreshold)
 /*
  * Quantize is Int( r / s )
  * Where s is 2 max( |r| ) / (2^b - 1)
- * Dequnatie is S * Q(r)
- * Where q is qunatized int and s_w is scaling factor of w and
+ * Dequantize is S * Q(r)
+ * Where q is quantized int and s_w is scaling factor of w and
  * s_x is the scaling factor of x
 
  * y = W X
@@ -300,9 +295,9 @@ float Quantize(float w1, float x1, int currentLayerIndex, int totalNumberOfLayer
         {
             ans = (-1 * max_number);
         }
-        // printf("This is going away - %i with w - %f with Q(w) - %i and x - %f with Q(x) - %i\n", ans, w1, quantize_helper(w1, s_w), x1, quantize_helper(x1, s_x));
+
         return ans;
-        // return 8.0;
+
     }
     else
     {
@@ -319,9 +314,9 @@ float Quantize(float w1, float x1, int currentLayerIndex, int totalNumberOfLayer
         {
             ans = (-1 * max_number);
         }
-        // printf("This is going away - %i with w - %f with Q(w) - %i and x - %f with Q(x) - %i\n", ans, w1, quantize_helper(w1, s_w), x1, quantize_helper(x1, s_x));
+
         return ans;
-        // return 8.0;
+
     }
 }
 
@@ -388,9 +383,6 @@ float getWAndX(float w1, float x1, int currentLayerIndex, int totalNumberOfLayer
     w_values[w_index] = w1;
     w_index++;
 
-    // printf(" W - %f and X - %f \n", w1, x1);
-
-    // return (int)(w1 * x1);
     return (w1 * x1);
 }
 
@@ -398,30 +390,21 @@ float FakeQuantIntegerBasedAddition(float num1, float num2)
 {
     int intNum1 = (int)num1;
     int intNum2 = (int)num2;
-    // printf("Got this in Addition - %i and %i and their sum %i\n", intNum1, intNum2, intNum1 + intNum2);
+
     return (float)(intNum1 + intNum2);
 }
 
-float FakeQuantDequantizeAndBiasAddition(float QunatizeNum, float Basis)
+float FakeQuantDequantizeAndBiasAddition(float quantizeNum, float basis)
 {
-    int QunatizeIntNum = (int)QunatizeNum;
-    float dequnatizedFloat = dequantize(QunatizeIntNum);
-    float result = dequnatizedFloat + Basis;
-    // printf("Returning this - %f\n", result);
+    int QuantizeIntNum = (int)quantizeNum;
+    float dequnatizedFloat = dequantize(QuantizeIntNum);
+    float result = dequnatizedFloat + basis;
 
-    // printf("Returning this  - %f and basis is %f\n", (dequnatizedFloat + Basis), Basis);
     return result;
-    // return 123.00;
 }
 
 float QuantizeMatMul(float w1, float x1, int currentLayerIndex, int totalNumberOfLayers)
 {
-    int QunatinzedInt = (int)Quantize(w1, x1, currentLayerIndex, totalNumberOfLayers);
-    return dequantize(QunatinzedInt);
-    // 1.22 * 2.33 => 34 => 2.33
-}
-
-void getBias(float a, float b)
-{
-    // printf("Returning this - %f\n", (a + b));
+    int quantizedInt = (int)Quantize(w1, x1, currentLayerIndex, totalNumberOfLayers);
+    return dequantize(quantizedInt);
 }

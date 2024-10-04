@@ -378,9 +378,6 @@ namespace llfi
         "finished", Type::getVoidTy(Context), Type::getInt32Ty(Context),
         Type::getInt32Ty(Context), Type::getInt32Ty(Context), Type::getInt32Ty(Context), Type::getInt32Ty(Context));
 
-    FunctionCallee getBias = M->getOrInsertFunction(
-        "getBias", Type::getVoidTy(Context), Type::getFloatTy(Context),
-        Type::getFloatTy(Context));
 
     bool foundLayerDef = false;
     int numberofFadd = 0;
@@ -459,20 +456,6 @@ namespace llfi
 
             op->replaceAllUsesWith(newInst);
             deleteInst.insert(op);
-          }
-          else if (op->getOpcode() == Instruction::FAdd)
-          {
-            numberofFadd++;
-            if (numberofFadd == 2)
-            {
-
-              IRBuilder<> Builder(op);
-              Value *op1 = op->getOperand(0);
-              Value *op2 = op->getOperand(1);
-
-              Value *newInst = Builder.CreateCall(getBias, {op1, op2});
-
-            }
           }
         }
       }

@@ -203,12 +203,6 @@ void FindPercentile(int minPercentileThreshold, int maxPercentileThreshold)
         max_w = find_percentile_value(w_values, w_index, maxPercentileThreshold);
     }
 
-    // min_w = find_percentile_value(w_values, w_index, lowerPercentile);
-    // max_w = find_percentile_value(w_values, w_index, higherPercentile);
-
-    // min_x = find_percentile_value(x_values, x_index, lowerPercentile);
-    // max_x = find_percentile_value(x_values, x_index, higherPercentile);
-
     min_x = x_values[0];
     max_x = x_values[x_index - 1];
 

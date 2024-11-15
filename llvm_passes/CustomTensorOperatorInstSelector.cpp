@@ -35,57 +35,6 @@ bool CustomTensorOperatorInstSelector::isInstFITarget(Instruction *inst) {
     return checkInCustomTensorOperator(inst, layerNo_custom[0], layerName_custom[0]);
 }
 
-bool CustomTensorOperatorInstSelector::checkInCustomTensorOperator(llvm::Instruction *inst, std::string layerNo, std::string layerName) {
-    if (inst->getParent()->getParent()->getName() == "main_graph") {
-
-        if (map.size() == 0 && !injectInAll){
-            initializeLayerNameAndNumber(layerNo, layerName);
-        }
-
-        if (inst->getOpcode() == Instruction::Call){
-            CallInst* callinst = dyn_cast<CallInst>(inst);
-
-            // If this is OMInstrument function?
-            if ((callinst->getCalledFunction())->getName() ==
-                "OMInstrumentPoint") {
-
-                Value* arg1 = callinst->getArgOperand(0);
-                Value* arg2 = callinst->getArgOperand(1);
-
-                ConstantInt* ci1 = dyn_cast<ConstantInt>(arg1);
-                ConstantInt* ci2 = dyn_cast<ConstantInt>(arg2);
-
-                int64_t argValue1 = ci1->getSExtValue();
-                int64_t argValue2 = ci2->getSExtValue();
-
-                if (argValue2 == op_start && shouldInjectFaultInOperator(argValue1)) {
-
-                    // Inject fault!
-                    inCustomTensorOperator = true;
-                }
-
-                if (argValue2 == op_end) {
-
-                    // Set this to false after the operator ends.
-                    inCustomTensorOperator = false;
-                }
-            }
-        }
-
-        if (!inCustomTensorOperator) return false;
-
-        // Injecting fault.
-        printf("CALLING SHOULDINJECTINSTRUCTION\n");
-        if (shouldInjectInstruction(inst)) {
-            addMetadata(inst, "Injected fault");
-            return true;
-        }
-
-        return false; // Inject Fault in all instructions
-    }
-    return false;
-}
-
 bool CustomTensorOperatorInstSelector::shouldInjectInstruction(Instruction *inst) {
     return inst->getOpcode() == Instruction::FAdd ||
             inst->getOpcode() == Instruction::FSub ||

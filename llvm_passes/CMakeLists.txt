@@ -12,7 +12,7 @@ add_llvm_library(llfi-passes MODULE
   HardwareFailureAutoScanPass.cpp
   MainGraphInstSelector.cpp
   CustomTensorOperatorInstSelector.cpp
-  TensorWeightsInstSelector.cpp
+  WeightsAndBiasesInstSelector.cpp
 
   core/FaultInjectionPass.cpp
   core/InstTracePass.cpp

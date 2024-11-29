@@ -47,9 +47,9 @@ compileOption:
 ## To inject faults into the weights and biases of the model:
 ## weights: set to True to inject into weights, False otherwise (default is True)
 ## bias: set to True to inject into biases, False otherwise (default is False)
-## layerNo_WandB, layerName_WandB are similar to layerNo and layerName
-## but determine which layers to inject into the weights and biases 
-## of the model instead of results of arithmetic instructions.
+## layerNo_WandB: The value '0' represents all layers of the 'layerName_WandB' type;
+## layerName_WandB: The type of layer must be mentioned in layerName. 
+##                  NOTE: must specify 'add' operator to inject into weights (for now)
 compileOption:
     instSelMethod:
       - customInstselector:
@@ -58,8 +58,8 @@ compileOption:
           options:
             - weights=True
             - bias=True
-            - layerNo_WandB=0
-            - layerName_WandB=matmul  
+            - layerNo_WandB=0;0
+            - layerName_WandB=matmul;add
 
     ## To use a location-based register selector to select targeting register:
     regSelMethod: regloc

@@ -120,6 +120,7 @@ class CustomTensorOperatorInstSelector : public HardwareFIInstSelector {
     bool inCustomTensorOperator;
     std::unordered_map<int64_t, std::vector<Operator*>> map;
     bool injectInAll;
+    std::string currOperatorName;
 
     bool checkInCustomTensorOperator(llvm::Instruction *inst, std::string layerNo, std::string layerName) {
         if (inst->getParent()->getParent()->getName() == "main_graph") {
@@ -148,6 +149,10 @@ class CustomTensorOperatorInstSelector : public HardwareFIInstSelector {
 
                         // Inject fault!
                         inCustomTensorOperator = true;
+
+                        if (!injectInAll) {
+                            currOperatorName = map[argValue1][0]->OperatorName;
+                        }
                     }
 
                     if (argValue2 == op_end) {
@@ -161,7 +166,6 @@ class CustomTensorOperatorInstSelector : public HardwareFIInstSelector {
             if (!inCustomTensorOperator) return false;
 
             // Injecting fault.
-            printf("CALLING SHOULDINJECTINSTRUCTION\n");
             if (shouldInjectInstruction(inst)) {
                 addMetadata(inst, "Injected fault");
                 return true;

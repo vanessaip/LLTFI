@@ -25,18 +25,15 @@ static cl::opt< bool > weights("weights", cl::desc("Include injecting into weigh
 
 class WeightsAndBiasesInstSelector : public CustomTensorOperatorInstSelector {
 protected:
-    // from what i know now, i want to only inject into first fmul/fadd 
-    // but i might also want to do both (deal with this after verifying IR and for other operators)
 
     virtual bool isInstFITarget(Instruction *inst) {
         return checkInCustomTensorOperator(inst, layerNo_WandB[0], layerName_WandB[0]);
     }
 
-    virtual bool shouldInjectInstruction(Instruction *inst) {
-        printf("TENSOR WEIGHT INJECTING \n");
-        if (bias && inst->getOpcode() == Instruction::FAdd ||
-            weights && inst->getOpcode() == Instruction::FMul) {
-            // inCustomTensorOperator = false; // no need to keep looking in the current operator
+    virtual bool shouldInjectInstruction(Instruction *inst, std::string layerName) {
+        if (bias && (strcmp(currOperatorName.c_str(), "add")) == 0 && inst->getOpcode() == Instruction::FAdd
+            || weights && inst->getOpcode() == Instruction::FMul) {
+            inCustomTensorOperator = false; // no need to keep looking in the current operator
             return true;
         }
         return false;

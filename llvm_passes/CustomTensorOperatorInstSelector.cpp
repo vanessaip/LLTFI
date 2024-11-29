@@ -46,6 +46,7 @@ bool CustomTensorOperatorInstSelector::shouldInjectInstruction(Instruction *inst
 CustomTensorOperatorInstSelector::CustomTensorOperatorInstSelector(){
     inCustomTensorOperator = false;
     injectInAll = false;
+    currOperatorName = "";
 }
 
 void CustomTensorOperatorInstSelector::getCompileTimeInfo(std::map<std::string, std::string> &info) {

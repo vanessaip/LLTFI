@@ -25,16 +25,54 @@ static cl::opt< bool > weights("weights", cl::desc("Include injecting into weigh
 
 class WeightsAndBiasesInstSelector : public CustomTensorOperatorInstSelector {
 protected:
+    uint32_t convFaddCount;
 
     virtual bool isInstFITarget(Instruction *inst) {
         return checkInCustomTensorOperator(inst, layerNo_WandB[0], layerName_WandB[0]);
     }
 
-    virtual bool shouldInjectInstruction(Instruction *inst, std::string layerName) {
-        if (bias && (strcmp(currOperatorName.c_str(), "add")) == 0 && inst->getOpcode() == Instruction::FAdd
-            || weights && inst->getOpcode() == Instruction::FMul) {
-            inCustomTensorOperator = false; // no need to keep looking in the current operator
-            return true;
+    virtual bool shouldInjectInstruction(Instruction *inst) {
+        if (strcmp(currOperatorName.c_str(), "add") == 0){
+            if (bias && inst->getOpcode() == Instruction::FAdd) {
+                inCustomTensorOperator = false; // no need to keep looking in the current operator
+                return true;
+            }
+            return false;
+        } else if (strcmp(currOperatorName.c_str(), "matmul") == 0) {
+            if (weights && inst->getOpcode() == Instruction::FMul) {
+                inCustomTensorOperator = false;
+                return true;
+            }
+            return false;
+        } else if (strcmp(currOperatorName.c_str(), "conv") == 0
+                    || strcmp(currOperatorName.c_str(), "gemm") == 0) // gemm has the same pattern as conv
+            {
+            // first (only) fmul
+            if (weights && inst->getOpcode() == Instruction::FMul) {
+                if (!bias) {
+                    inCustomTensorOperator = false;
+                }
+                return true;
+            // and second fadd
+            } else if (bias && inst->getOpcode() == Instruction::FAdd) {
+                assert(convFaddCount < 2);
+                if (convFaddCount == 0) {
+                    convFaddCount++;
+                    printf("First fadd inst, skipping\n");
+                    return false;
+                } else if (convFaddCount == 1) {
+                    convFaddCount = 0;
+                    inCustomTensorOperator = false;
+                    return true;
+                } else {
+                    printf("WeightsAndBiasesInstSelector: unexpected number of FAdd instructions: %d\n", convFaddCount);
+                    return false;
+                }
+            }
+            return false;
+        } else {
+            printf("WeightsAndBiasesInstSelector: unsupported operator type %s\n", currOperatorName.c_str());
+            return false;
         }
         return false;
     }
@@ -43,6 +81,8 @@ public:
     WeightsAndBiasesInstSelector(){
         inCustomTensorOperator = false;
         injectInAll = false; 
+        currOperatorName = "";
+        convFaddCount = 0;  // for convolution operators, the bias terms are added in the second FAdd instance
     }
 
     virtual void getCompileTimeInfo(std::map<std::string, std::string> &info) {

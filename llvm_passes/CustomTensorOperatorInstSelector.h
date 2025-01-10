@@ -76,7 +76,8 @@ struct Operator {
             {"softmax", 33884119937478483},
             {"loop", 1886351180},
             {"nonmaxs", 23494782373228366},
-            {"unsqueeze", 28540527736745557}
+            {"unsqueeze", 28540527736745557},
+            {"gemm", 1835885895},
         };
 
         if (ONNXOperatorId.find(opname) == ONNXOperatorId.end())
